@@ -85,9 +85,9 @@ class Program
         Console.Clear();
         Console.WriteLine(
             "Examine a List of strings.\n"
-            + "To add a 'value' to the list, type '+value'.\n"
+            + "To add 'value' to the list, type '+value'.\n"
             + "To remove 'value' from the list, type '-value'.\n"
-            + "To exit to the main menu, type '0'.\n\n"
+            + "To exit to the main menu, type '0'.\n"
         );
 
         List<string> list = [];
@@ -163,11 +163,52 @@ class Program
     /// </remarks>
     static void ExamineQueue()
     {
-        /*
-         * Loop this method untill the user inputs something to exit to main menue.
-         * Create a switch with cases to enqueue items or dequeue items
-         * Make sure to look at the queue after Enqueueing and Dequeueing to see how it behaves
-         */
+        Console.Clear();
+        Console.WriteLine(
+            "Examine a Queue of strings.\n"
+            + "To add 'value' to the queue, type '+value'.\n"
+            + "To pop an entry from the queue, type '-'.\n"
+            + "To exit to the main menu, type '0'.\n"
+        );
+
+        Queue<string> queue = new();
+        string? readResult;
+
+        readResult = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(readResult))
+        {
+            Console.WriteLine("Empty input, try again.");
+            return;
+        }
+        char choice = readResult[0];
+        // Using Substring should be safe here even for strings of length 1
+        string value = readResult[1..];
+
+        switch (choice)
+        {
+            case '+':
+                queue.Enqueue(value);
+                Console.Write($"Added {value} to the Queue. ");
+                break;
+            case '-':
+                if (queue.Count == 0)
+                    Console.Write("Cannot pop an item, the Queue is empty. ");
+                else
+                {
+                    string popped = queue.Dequeue();
+                    Console.Write($"Popped {popped} from the Queue. ");
+                }
+                break;
+            case '0':
+                Console.WriteLine("Press enter to return to the main menu.");
+                _ = Console.ReadLine();
+                return;
+            default:
+                Console.WriteLine($"Could not parse choice {choice}, try again");
+                return;
+        }
+
+        Console.WriteLine($"Current Queue: {queue}");
     }
 
     /// <summary>
