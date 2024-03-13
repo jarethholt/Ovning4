@@ -174,41 +174,45 @@ class Program
         Queue<string> queue = new();
         string? readResult;
 
-        readResult = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(readResult))
+        while (true)
         {
-            Console.WriteLine("Empty input, try again.");
-            return;
-        }
-        char choice = readResult[0];
-        // Using Substring should be safe here even for strings of length 1
-        string value = readResult[1..];
 
-        switch (choice)
-        {
-            case '+':
-                queue.Enqueue(value);
-                Console.Write($"Added {value} to the Queue. ");
-                break;
-            case '-':
-                if (queue.Count == 0)
-                    Console.Write("Cannot pop an item, the Queue is empty. ");
-                else
-                {
-                    string popped = queue.Dequeue();
-                    Console.Write($"Popped {popped} from the Queue. ");
-                }
-                break;
-            case '0':
-                Console.WriteLine("Press enter to return to the main menu.");
-                _ = Console.ReadLine();
-                return;
-            default:
-                Console.WriteLine($"Could not parse choice {choice}, try again");
-                return;
-        }
+            readResult = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(readResult))
+            {
+                Console.WriteLine("Empty input, try again.");
+                continue;
+            }
+            char choice = readResult[0];
+            // Using Substring should be safe here even for strings of length 1
+            string value = readResult[1..];
 
-        Console.WriteLine($"Current Queue: {queue}");
+            switch (choice)
+            {
+                case '+':
+                    queue.Enqueue(value);
+                    Console.Write($"Added {value} to the Queue. ");
+                    break;
+                case '-':
+                    if (queue.Count == 0)
+                        Console.Write("Cannot pop an item, the Queue is empty. ");
+                    else
+                    {
+                        string popped = queue.Dequeue();
+                        Console.Write($"Popped {popped} from the Queue. ");
+                    }
+                    break;
+                case '0':
+                    Console.WriteLine("Press enter to return to the main menu.");
+                    _ = Console.ReadLine();
+                    return;
+                default:
+                    Console.WriteLine($"Could not parse choice {choice}, try again");
+                    continue;
+            }
+
+            Console.WriteLine($"Current Queue: {queue}");
+        }
     }
 
     /// <summary>
