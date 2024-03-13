@@ -64,17 +64,19 @@ class Program
     /// <summary>
     /// Examines the datastructure List.
     /// </summary>
+    /// <remarks>
+    /// Allow the user to manipulate a List of strings. The available actions are,
+    /// like the main menu, controlled by the first character of each line:
+    ///     '+': Add the rest of the input to the list.
+    ///          For example, writing '+Adam' would add "Adam" to the list.
+    ///     '-': (Attempt to) remove an item from the list.
+    ///          For example, writing '-Adam' would remove "Adam" from the list
+    ///          if present and print an error otherwise.
+    ///     '0': Exit to the main menu.
+    /// After each item is added, the Count and Capacity of the list are printed.
+    /// </remarks>
     static void ExamineList()
     {
-        /*
-         * Loop this method untill the user inputs something to exit to main menue.
-         * Create a switch statement with cases '+' and '-'
-         * '+': Add the rest of the input to the list (The user could write +Adam and "Adam" would be added to the list)
-         * '-': Remove the rest of the input from the list (The user could write -Adam and "Adam" would be removed from the list)
-         * In both cases, look at the count and capacity of the list
-         * As a default case, tell them to use only + or -
-         * Below you can see some inspirational code to begin working.
-         */
 
         //List<string> theList = new List<string>();
         //string input = Console.ReadLine();
