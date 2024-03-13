@@ -70,12 +70,12 @@ class Program
     /// <remarks>
     /// Allow the user to manipulate a List of strings. The available actions are,
     /// like the main menu, controlled by the first character of each line:
-    ///     '+': Add the rest of the input to the list.
-    ///          For example, writing '+Adam' would add "Adam" to the list.
-    ///     '-': (Attempt to) remove an item from the list.
-    ///          For example, writing '-Adam' would remove "Adam" from the list
-    ///          if present and print an error otherwise.
-    ///     '0': Exit to the main menu.
+    ///   '+': Add the rest of the input to the list.
+    ///        For example, writing '+Adam' would add "Adam" to the list.
+    ///   '-': (Attempt to) remove an item from the list.
+    ///        For example, writing '-Adam' would remove "Adam" from the list
+    ///        if present and print an error otherwise.
+    ///   '0': Exit to the main menu.
     /// Entering any other character (or nothing) as the first character will
     /// print an error message and do nothing.
     /// After each item is added, the Count and Capacity of the list are printed.
@@ -129,10 +129,38 @@ class Program
             Console.WriteLine($"Count: {list.Count}; Capacity: {list.Capacity}");
         }
     }
+    /* Answers to questions relevant to this code:
+     * 2. The list's capacity grows when the current capacity is *exceeded*. For example,
+     *    if the capacity is 4, it is increased when trying to add the 5th element.
+     * 3. The capacity is doubled each time: 1 -> 2 -> 4 -> 8 -> ...
+     * 4. Growing the list requires allocating more space for data. It's expected that
+     *    the list will grow, so it's more efficient to allocate plenty of space at once.
+     *    The specific capacity increases suggest the list is backed by a binary heap.
+     * 5. The capacity is never decreased despite the count falling below any amount of
+     *    thresholds. As far as I can tell, List.TrimExcess is the only way to reduce
+     *    the capacity of a list.
+     * 6. An array is definitely better than a list anytime you know exactly what size
+     *    you need beforehand. Otherwise I would say lists are a better choice. Since
+     *    C# has List.EnsureCapacity, I don't think there's any amount of knowledge of
+     *    the _approximate_ size that would make an array more efficient.
+     */
+
 
     /// <summary>
     /// Examine the datastructure Queue.
     /// </summary>
+    /// <remarks>
+    /// Allow the user to manipulate a Queue of strings. The available actions are,
+    /// like the main menu, controlled by the first character of each input line:
+    ///   '+': Add the rest of the input to the queue.
+    ///        For example, writing '+Adam' would add "Adam" to the queue.
+    ///   '-': Pop the item at the front of the queue.
+    ///        Gives an error message if the queue is empty.
+    ///   '0': Exit to the main menu.
+    /// Entering any other character (or nothing) as the first character will
+    /// print an error message and do nothing.
+    /// After each change the state of the queue is printed.
+    /// </remarks>
     static void ExamineQueue()
     {
         /*
