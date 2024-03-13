@@ -73,17 +73,50 @@ class Program
     ///          For example, writing '-Adam' would remove "Adam" from the list
     ///          if present and print an error otherwise.
     ///     '0': Exit to the main menu.
+    /// Entering any other character (or nothing) as the first character will
+    /// print an error message and do nothing.
     /// After each item is added, the Count and Capacity of the list are printed.
     /// </remarks>
     static void ExamineList()
     {
+        List<string> list = [];
+        string? readResult;
 
-        //List<string> theList = new List<string>();
-        //string input = Console.ReadLine();
-        //char nav = input[0];
-        //string value = input.substring(1);
+        while (true)
+        {
+            readResult = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(readResult))
+            {
+                Console.WriteLine("Empty input, try again.");
+                continue;
+            }
+            char choice = readResult[0];
+            string value = readResult[1..];
 
-        //switch(nav){...}
+            switch (choice)
+            {
+                case '+':
+                    list.Add(value);
+                    Console.Write($"Added {value}. ");
+                    break;
+                case '-':
+                    bool success = list.Remove(value);
+                    if (success)
+                        Console.Write($"Removed {value}. ");
+                    else
+                        Console.Write($"{value} is not in the list. ");
+                    break;
+                case '0':
+                    Console.WriteLine("Press enter to return to the main menu.");
+                    _ = Console.ReadLine();
+                    return;
+                default:
+                    Console.WriteLine($"Could not parse choice {choice}, try again");
+                    continue;
+            }
+
+            Console.WriteLine($"Count: {list.Count}; Capacity: {list.Capacity}");
+        }
     }
 
     /// <summary>
