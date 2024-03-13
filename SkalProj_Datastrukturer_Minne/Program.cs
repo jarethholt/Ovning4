@@ -9,6 +9,7 @@ class Program
     {
         while (true)
         {
+            Console.Clear();
             Console.WriteLine(
                 "Please navigate through the menu by inputting the number"
                 + "\n(1, 2, 3 ,4, 0) of your choice."
@@ -79,6 +80,14 @@ class Program
     /// </remarks>
     static void ExamineList()
     {
+        Console.Clear();
+        Console.WriteLine(
+            "Examine a List of strings.\n"
+            + "To add a 'value' to the list, type '+value'.\n"
+            + "To remove 'value' from the list, type '-value'.\n"
+            + "To exit to the main menu, type '0'.\n\n"
+        );
+
         List<string> list = [];
         string? readResult;
 
