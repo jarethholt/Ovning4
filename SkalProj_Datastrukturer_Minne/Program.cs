@@ -11,13 +11,13 @@ class Program
         {
             Console.Clear();
             Console.WriteLine(
-                "Please navigate through the menu by inputting the number"
-                + "\n(1, 2, 3 ,4, 0) of your choice."
-                + "\n1. Examine a List"
-                + "\n2. Examine a Queue"
-                + "\n3. Examine a Stack"
-                + "\n4. CheckParenthesis"
-                + "\n0. Exit the application"
+                "Please navigate through the menu by inputting the number "
+                + "(1, 2, 3 ,4, 0) of your choice.\n"
+                + "1. Examine a List\n"
+                + "2. Examine a Queue\n"
+                + "3. Examine a Stack\n"
+                + "4. CheckParenthesis\n"
+                + "0. Exit the application"
             );
 
             // Create the character input to be used with the switch-case below.
@@ -57,6 +57,8 @@ class Program
                     break;
                 default:
                     Console.WriteLine("Please enter some valid input (0, 1, 2, 3, 4)");
+                    Console.WriteLine("Press enter to try again.");
+                    _ = Console.ReadLine();
                     break;
             }
         }
