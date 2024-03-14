@@ -288,59 +288,78 @@ class Program
     /// <summary>Check if the various enclosers (), [], {} in a string are matched.</summary>
     static void CheckParentheses()
     {
-        Console.Clear();
-        Console.WriteLine("Examine if the enclosers in a string are correct.");
-        Console.WriteLine("Please provide a string to check:");
-        string? readResult = Console.ReadLine();
-
-        while (string.IsNullOrWhiteSpace(readResult))
+        while (true)
         {
-            Console.WriteLine("Please enter non-empty text:");
-            readResult = Console.ReadLine();
+            Console.Clear();
+            Console.WriteLine("Examine if the enclosers in a string are correct.");
+            Console.WriteLine("Please provide a string to check:");
+            string? readResult = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(readResult))
+            {
+                Console.WriteLine("Please enter non-empty text:");
+                readResult = Console.ReadLine();
+            }
+
+            // Keep a stack of the openers; check each closer against the top of the stack
+            bool correct = true;
+            Stack<char> openers = new();
+            foreach (char curr in readResult.ToCharArray())
+            {
+                if (_closerToOpener.ContainsValue(curr))
+                {
+                    openers.Push(curr);
+                    continue;
+                }
+                if (!_closerToOpener.ContainsKey(curr))
+                    continue;
+
+                // Are there any openers left on the stack?
+                if (openers.Count == 0)
+                {
+                    Console.WriteLine(
+                        "The stack is empty. This means there were fewer openers than closers."
+                    );
+                    correct = false;
+                    break;
+                }
+
+                // Does the closer curr match the most recent opener?
+                char lastOpener = openers.Pop();
+                if (lastOpener != _closerToOpener[curr])
+                {
+                    Console.WriteLine(
+                        $"The closer {curr} does not match the most recent opener {lastOpener}"
+                    );
+                    correct = false;
+                    break;
+                }
+            }
+
+            if (correct)
+                Console.WriteLine("The given text has correctly matched enclosers.");
+            else
+                Console.WriteLine("The given text does not have correctly matched enclosers.");
+
+            do
+            {
+                Console.Write("Would you like to input another string [y/n]? ");
+                readResult = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(readResult))
+                {
+                    Console.WriteLine("Please use non-empty input.");
+                    continue;
+                }
+
+                char answer = readResult.ToLower()[0];
+                if (answer == 'n')
+                    return;
+                else if (answer == 'y')
+                    break;
+                else
+                    Console.WriteLine("Please enter an input starting with 'y' or 'n'.");
+            } while (true);
         }
-
-        // Keep a stack of the openers; check each closer against the top of the stack
-        bool correct = true;
-        Stack<char> openers = new();
-        foreach (char curr in readResult.ToCharArray())
-        {
-            if (_closerToOpener.ContainsValue(curr))
-            {
-                openers.Push(curr);
-                continue;
-            }
-            if (!_closerToOpener.ContainsKey(curr))
-                continue;
-
-            // Are there any openers left on the stack?
-            if (openers.Count == 0)
-            {
-                Console.WriteLine(
-                    "The stack is empty. This means there were fewer openers than closers."
-                );
-                correct = false;
-                break;
-            }
-
-            // Does the closer curr match the most recent opener?
-            char lastOpener = openers.Pop();
-            if (lastOpener != _closerToOpener[curr])
-            {
-                Console.WriteLine(
-                    $"The closer {curr} does not match the most recent opener {lastOpener}"
-                );
-                correct = false;
-                break;
-            }
-        }
-
-        if (correct)
-            Console.WriteLine("The given text has correctly matched enclosers.");
-        else
-            Console.WriteLine("The given text does not have correctly matched enclosers.");
-
-        Console.WriteLine("Press enter to go back to the main menu.");
-        _ = Console.ReadLine();
     }
 
     /// <summary>Take a string from the user and reverse it using a Stack.</summary>
