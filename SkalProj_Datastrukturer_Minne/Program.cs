@@ -211,13 +211,26 @@ class Program
                     continue;
             }
 
-            Console.WriteLine($"Current Queue: {queue}");
+            string queueString = string.Join(", ", [.. queue]);
+            Console.WriteLine($"Current Queue: {queueString}");
         }
     }
 
     /// <summary>
     /// Examine the datastructure Stack.
     /// </summary>
+    /// <remarks>
+    /// Allow the user to manipulate a Stack of strings. The available actions are,
+    /// like the main menu, controlled by the first character of each input line:
+    ///   '+': Add the rest of the input to the stack.
+    ///        For example, writing '+Adam' would add "Adam" to the stack.
+    ///   '-': Pop the item at the front of the stack.
+    ///        Gives an error message if the stack is empty.
+    ///   '0': Exit to the main menu.
+    /// Entering any other character (or nothing) as the first character will
+    /// print an error message and do nothing.
+    /// After each change the state of the stack is printed.
+    /// </remarks>
     static void ExamineStack()
     {
         /*
