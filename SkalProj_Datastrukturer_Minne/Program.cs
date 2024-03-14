@@ -59,7 +59,7 @@ class Program
                     ExamineStack();
                     break;
                 case '4':
-                    CheckParanthesis();
+                    CheckParentheses();
                     break;
                 case '5':
                     ReverseText();
@@ -317,7 +317,7 @@ class Program
     }
 
     /// <summary>Check if the various enclosers (), [], {} in a string are matched.</summary>
-    static void CheckParanthesis()
+    static void CheckParentheses()
     {
         Console.Clear();
         Console.WriteLine("Examine if the enclosers in a string are correct.");
