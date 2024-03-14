@@ -2,9 +2,21 @@
 
 class Program
 {
-    /// <summary>
-    /// Handle the menus for the program.
-    /// </summary>
+    private static readonly Dictionary<char, char> _openerToCloser = new()
+    {
+        { '(', ')' },
+        { '[', ']' },
+        { '{', '}' }
+    };
+
+    private static readonly Dictionary<char, char> _closerToOpener = new()
+    {
+        { ')', '(' },
+        { ']', '[' },
+        { '}', '{' }
+    };
+
+    /// <summary>Handle the menus for the program.</summary>
     static void Main()
     {
         while (true)
@@ -56,7 +68,7 @@ class Program
                     Environment.Exit(0);
                     break;
                 default:
-                    Console.WriteLine("Please enter some valid input (0, 1, 2, 3, 4)");
+                    Console.WriteLine("Please enter some valid input (0, 1, 2, 3, 4, 5)");
                     Console.WriteLine("Press enter to try again.");
                     _ = Console.ReadLine();
                     break;
@@ -64,9 +76,7 @@ class Program
         }
     }
 
-    /// <summary>
-    /// Examines the datastructure List.
-    /// </summary>
+    /// <summary>Examines the datastructure List.</summary>
     /// <remarks>
     /// Allow the user to manipulate a List of strings. The available actions are,
     /// like the main menu, controlled by the first character of each line:
@@ -146,9 +156,7 @@ class Program
      */
 
 
-    /// <summary>
-    /// Examine the datastructure Queue.
-    /// </summary>
+    /// <summary>Examine the datastructure Queue.</summary>
     /// <remarks>
     /// Allow the user to manipulate a Queue of strings. The available actions are,
     /// like the main menu, controlled by the first character of each input line:
@@ -216,9 +224,7 @@ class Program
         }
     }
 
-    /// <summary>
-    /// Examine the datastructure Stack.
-    /// </summary>
+    /// <summary>Examine the datastructure Stack.</summary>
     /// <remarks>
     /// Allow the user to manipulate a Stack of strings. The available actions are,
     /// like the main menu, controlled by the first character of each input line:
@@ -286,9 +292,7 @@ class Program
         }
     }
 
-    /// <summary>
-    /// Take a string from the user and reverse it using a Stack.
-    /// </summary>
+    /// <summary>Take a string from the user and reverse it using a Stack.</summary>
     static void ReverseText()
     {
         Console.Clear();
@@ -312,17 +316,62 @@ class Program
         _ = Console.ReadLine();
     }
 
-    /// <summary>
-    /// Check if the various brackets (), [], {} in a string are matched.
-    /// </summary>
+    /// <summary>Check if the various enclosers (), [], {} in a string are matched.</summary>
     static void CheckParanthesis()
     {
-        /*
-         * Use this method to check if the paranthesis in a string is Correct or incorrect.
-         * Example of correct: (()), {}, [({})],  List<int> list = new List<int>() { 1, 2, 3, 4 };
-         * Example of incorrect: (()]), [), {[()}],  List<int> list = new List<int>() { 1, 2, 3, 4 );
-         */
+        Console.Clear();
+        Console.WriteLine("Examine if the enclosers in a string are correct.");
+        Console.WriteLine("Please provide a string to check:");
+        string? readResult = Console.ReadLine();
 
+        while (string.IsNullOrWhiteSpace(readResult))
+        {
+            Console.WriteLine("Please enter non-empty text:");
+            readResult = Console.ReadLine();
+        }
+
+        // Keep a stack of the openers; check each closer against the top of the stack
+        bool correct = true;
+        Stack<char> openers = new();
+        foreach (char curr in readResult.ToCharArray())
+        {
+            if (_closerToOpener.ContainsValue(curr))
+            {
+                openers.Push(curr);
+                continue;
+            }
+            if (!_closerToOpener.ContainsKey(curr))
+                continue;
+
+            // Are there any openers left on the stack?
+            if (openers.Count == 0)
+            {
+                Console.WriteLine(
+                    "The stack is empty. This means there were fewer openers than closers"
+                );
+                correct = false;
+                break;
+            }
+
+            // Does the closer curr match the most recent opener?
+            char lastOpener = openers.Pop();
+            if (lastOpener != _closerToOpener[curr])
+            {
+                Console.WriteLine(
+                    $"The closer {curr} does not match the most recent opener {lastOpener}"
+                );
+                correct = false;
+                break;
+            }
+        }
+
+        if (correct)
+            Console.WriteLine("The given text has correctly matched enclosers.");
+        else
+            Console.WriteLine("The given text does not have correctly matched enclosers.");
+
+        Console.WriteLine("Press enter to go back to the main menu.");
+        _ = Console.ReadLine();
     }
 
 }
