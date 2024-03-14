@@ -17,6 +17,7 @@ class Program
                 + "2. Examine a Queue\n"
                 + "3. Examine a Stack\n"
                 + "4. CheckParenthesis\n"
+                + "5. ReverseText\n"
                 + "0. Exit the application"
             );
 
@@ -48,10 +49,9 @@ class Program
                 case '4':
                     CheckParanthesis();
                     break;
-                /*
-                 * Extend the menu to include the recursive 
-                 * and iterative exercises.
-                 */
+                case '5':
+                    ReverseText();
+                    break;
                 case '0':
                     Environment.Exit(0);
                     break;
@@ -233,11 +233,83 @@ class Program
     /// </remarks>
     static void ExamineStack()
     {
-        /*
-         * Loop this method until the user inputs something to exit to main menue.
-         * Create a switch with cases to push or pop items
-         * Make sure to look at the stack after pushing and and poping to see how it behaves
-         */
+        Console.Clear();
+        Console.WriteLine(
+            "Examine a Stack of strings.\n"
+            + "To add 'value' to the stack, type '+value'.\n"
+            + "To pop an entry from the stack, type '-'.\n"
+            + "To exit to the main menu, type '0'.\n"
+        );
+
+        Stack<string> stack = new();
+        string? readResult;
+
+        while (true)
+        {
+
+            readResult = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(readResult))
+            {
+                Console.WriteLine("Empty input, try again.");
+                continue;
+            }
+            char choice = readResult[0];
+            // Using Substring should be safe here even for strings of length 1
+            string value = readResult[1..];
+
+            switch (choice)
+            {
+                case '+':
+                    stack.Push(value);
+                    Console.Write($"Added {value} to the Stack. ");
+                    break;
+                case '-':
+                    if (stack.Count == 0)
+                        Console.Write("Cannot pop an item, the Stack is empty. ");
+                    else
+                    {
+                        string popped = stack.Pop();
+                        Console.Write($"Popped {popped} from the Stack. ");
+                    }
+                    break;
+                case '0':
+                    Console.WriteLine("Press enter to return to the main menu.");
+                    _ = Console.ReadLine();
+                    return;
+                default:
+                    Console.WriteLine($"Could not parse choice {choice}, try again");
+                    continue;
+            }
+
+            string stackString = string.Join(", ", [.. stack]);
+            Console.WriteLine($"Current Stack: {stackString}");
+        }
+    }
+
+    /// <summary>
+    /// Take a string from the user and reverse it using a Stack.
+    /// </summary>
+    static void ReverseText()
+    {
+        Console.Clear();
+        Console.WriteLine("Reverse text with help of a Stack.");
+        Console.WriteLine("Please enter some text to reverse:");
+        string? readResult = Console.ReadLine();
+
+        while (string.IsNullOrWhiteSpace(readResult))
+        {
+            Console.WriteLine("Please enter non-empty text:");
+            readResult = Console.ReadLine();
+        }
+
+        // Construct a stack, feeding it the characters in readResult
+        Stack<char> chars = new(readResult.ToCharArray());
+        // Values are added to the "front" of the stack, so ToArray will reverse the characters
+        string reversed = new(chars.ToArray());
+
+        Console.WriteLine($"The reversed text: {reversed}");
+        Console.WriteLine("Press enter to go back to the main menu.");
+        _ = Console.ReadLine();
     }
 
     /// <summary>
