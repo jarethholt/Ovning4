@@ -2,22 +2,54 @@
 
 class Program
 {
+    private enum MenuOption
+    {
+        Exit,
+        ExamineList,
+        ExamineQueue,
+        ExamineStack,
+        CheckParentheses,
+        ReverseText
+    }
+    private static int _maxOptionLength =
+        Enum.GetValues<MenuOption>().Select(option => $"{option}".Length).Max();
+    private static readonly Dictionary<MenuOption, string> _descriptions = new()
+    {
+        { MenuOption.Exit            , "Exit the application."                  },
+        { MenuOption.ExamineList     , "Examine the List type."                 },
+        { MenuOption.ExamineQueue    , "Examine the Queue type."                },
+        { MenuOption.ExamineStack    , "Examine the Stack type."                },
+        { MenuOption.CheckParentheses, "Check a string for matching enclosers." },
+        { MenuOption.ReverseText     , "Reverse a piece of text."               }
+    };
+    private static readonly Dictionary<MenuOption, Action> _actions = new()
+    {
+        { MenuOption.ExamineList     , ExamineList      },
+        { MenuOption.ExamineQueue    , ExamineQueue     },
+        { MenuOption.ExamineStack    , ExamineStack     },
+        { MenuOption.CheckParentheses, CheckParentheses },
+        { MenuOption.ReverseText     , ReverseText      },
+    };
+
+    static void DisplayMenu()
+    {
+        Console.Clear();
+        Console.WriteLine("Please choose one of the options below.");
+        string format = $"{{0}} : {{1,-{_maxOptionLength}}} : {{2}}";
+        foreach (KeyValuePair<MenuOption, string> kvp in _descriptions)
+        {
+            MenuOption option = kvp.Key;
+            string description = kvp.Value;
+            Console.WriteLine(format, (int)option, option, description);
+        }
+    }
+
     /// <summary>Handle the menus for the program.</summary>
     static void Main()
     {
         while (true)
         {
-            Console.Clear();
-            Console.WriteLine(
-                "Please navigate through the menu by inputting the number "
-                + "(1, 2, 3, 4, 5, 0) of your choice.\n"
-                + "1. Examine a List\n"
-                + "2. Examine a Queue\n"
-                + "3. Examine a Stack\n"
-                + "4. CheckParentheses\n"
-                + "5. ReverseText\n"
-                + "0. Exit the application"
-            );
+            DisplayMenu();
 
             // Create the character input to be used with the switch-case below.
             // Read the first character of any input.
