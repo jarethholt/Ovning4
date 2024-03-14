@@ -2,13 +2,6 @@
 
 class Program
 {
-    private static readonly Dictionary<char, char> _openerToCloser = new()
-    {
-        { '(', ')' },
-        { '[', ']' },
-        { '{', '}' }
-    };
-
     private static readonly Dictionary<char, char> _closerToOpener = new()
     {
         { ')', '(' },
@@ -24,7 +17,7 @@ class Program
             Console.Clear();
             Console.WriteLine(
                 "Please navigate through the menu by inputting the number "
-                + "(1, 2, 3 ,4, 0) of your choice.\n"
+                + "(1, 2, 3, 4, 5, 0) of your choice.\n"
                 + "1. Examine a List\n"
                 + "2. Examine a Queue\n"
                 + "3. Examine a Stack\n"
@@ -292,30 +285,6 @@ class Program
         }
     }
 
-    /// <summary>Take a string from the user and reverse it using a Stack.</summary>
-    static void ReverseText()
-    {
-        Console.Clear();
-        Console.WriteLine("Reverse text with help of a Stack.");
-        Console.WriteLine("Please enter some text to reverse:");
-        string? readResult = Console.ReadLine();
-
-        while (string.IsNullOrWhiteSpace(readResult))
-        {
-            Console.WriteLine("Please enter non-empty text:");
-            readResult = Console.ReadLine();
-        }
-
-        // Construct a stack, feeding it the characters in readResult
-        Stack<char> chars = new(readResult.ToCharArray());
-        // Values are added to the "front" of the stack, so ToArray will reverse the characters
-        string reversed = new(chars.ToArray());
-
-        Console.WriteLine($"The reversed text: {reversed}");
-        Console.WriteLine("Press enter to go back to the main menu.");
-        _ = Console.ReadLine();
-    }
-
     /// <summary>Check if the various enclosers (), [], {} in a string are matched.</summary>
     static void CheckParentheses()
     {
@@ -347,7 +316,7 @@ class Program
             if (openers.Count == 0)
             {
                 Console.WriteLine(
-                    "The stack is empty. This means there were fewer openers than closers"
+                    "The stack is empty. This means there were fewer openers than closers."
                 );
                 correct = false;
                 break;
@@ -372,6 +341,51 @@ class Program
 
         Console.WriteLine("Press enter to go back to the main menu.");
         _ = Console.ReadLine();
+    }
+
+    /// <summary>Take a string from the user and reverse it using a Stack.</summary>
+    static void ReverseText()
+    {
+        while (true)
+        {
+            Console.Clear();
+            Console.WriteLine("Reverse text with help of a Stack.");
+            Console.WriteLine("Please enter some text to reverse:");
+            string? readResult = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(readResult))
+            {
+                Console.WriteLine("Please enter non-empty text:");
+                readResult = Console.ReadLine();
+            }
+
+            // Construct a stack, feeding it the characters in readResult
+            Stack<char> chars = new(readResult.ToCharArray());
+            // Values are added to the "front" of the stack, so ToArray will reverse the characters
+            string reversed = new(chars.ToArray());
+
+            Console.WriteLine($"The reversed text: {reversed}");
+            Console.WriteLine();
+
+            do
+            {
+                Console.Write("Would you like to input another string [y/n]? ");
+                readResult = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(readResult))
+                {
+                    Console.WriteLine("Please use non-empty input.");
+                    continue;
+                }
+
+                char answer = readResult.ToLower()[0];
+                if (answer == 'n')
+                    return;
+                else if (answer == 'y')
+                    break;
+                else
+                    Console.WriteLine("Please enter an input starting with 'y' or 'n'.");
+            } while (true);
+        }
     }
 
 }
