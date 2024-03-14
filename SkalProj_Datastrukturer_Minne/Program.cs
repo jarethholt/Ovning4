@@ -2,13 +2,6 @@
 
 class Program
 {
-    private static readonly Dictionary<char, char> _closerToOpener = new()
-    {
-        { ')', '(' },
-        { ']', '[' },
-        { '}', '{' }
-    };
-
     /// <summary>Handle the menus for the program.</summary>
     static void Main()
     {
@@ -21,7 +14,7 @@ class Program
                 + "1. Examine a List\n"
                 + "2. Examine a Queue\n"
                 + "3. Examine a Stack\n"
-                + "4. CheckParenthesis\n"
+                + "4. CheckParentheses\n"
                 + "5. ReverseText\n"
                 + "0. Exit the application"
             );
@@ -285,6 +278,13 @@ class Program
         }
     }
 
+    private static readonly Dictionary<char, char> _closerToOpener = new()
+    {
+        { ')', '(' },
+        { ']', '[' },
+        { '}', '{' }
+    };
+
     /// <summary>Check if the various enclosers (), [], {} in a string are matched.</summary>
     static void CheckParentheses()
     {
@@ -303,12 +303,13 @@ class Program
 
             // Keep a stack of the openers; check each closer against the top of the stack
             bool correct = true;
-            Stack<char> openers = new();
-            foreach (char curr in readResult.ToCharArray())
+            Stack<(char,int)> openers = new();
+            for (int currPosition = 0; currPosition < readResult.Length; currPosition++)
             {
+                char curr = readResult[currPosition];
                 if (_closerToOpener.ContainsValue(curr))
                 {
-                    openers.Push(curr);
+                    openers.Push((curr,currPosition));
                     continue;
                 }
                 if (!_closerToOpener.ContainsKey(curr))
@@ -317,20 +318,25 @@ class Program
                 // Are there any openers left on the stack?
                 if (openers.Count == 0)
                 {
+                    // Draw an arrow pointing out the unmatchable closer
+                    string arrowFormat = $"{{0,{currPosition+1}}}";
+                    Console.WriteLine(string.Format(arrowFormat, '1'));
                     Console.WriteLine(
-                        "The stack is empty. This means there were fewer openers than closers."
+                        "This closer (1) is unmatchable."
                     );
                     correct = false;
                     break;
                 }
 
                 // Does the closer curr match the most recent opener?
-                char lastOpener = openers.Pop();
+                (char lastOpener, int openerPosition) = openers.Pop();
                 if (lastOpener != _closerToOpener[curr])
                 {
-                    Console.WriteLine(
-                        $"The closer {curr} does not match the most recent opener {lastOpener}"
-                    );
+                    // Draw arrows pointing out the mismatch
+                    string arrowFormat
+                        = $"{{0,{openerPosition+1}}}{{1,{currPosition - openerPosition}}}";
+                    Console.WriteLine(string.Format(arrowFormat, '1', '2'));
+                    Console.WriteLine("The closer (2) does not match the most recent opener (1).");
                     correct = false;
                     break;
                 }
