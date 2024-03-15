@@ -1,4 +1,26 @@
-﻿namespace SkalProj_Datastrukturer_Minne;
+﻿/* Answers to the pre-coding exercise questions:
+ * 1. The stack works by holding the data and pointers relevant to current execution.
+ *    In the context of code execution, the stack holds the methods to be executed in
+ *    the order to execute them. Methods are popped off the top of the stack after they
+ *    have run; but if they call other methods while running, those are added to the stack
+ *    first and have to finish before the current method is considered finished.
+ *    The memory heap is a general region of memory to be dynamically (runtime) allocated that
+ *    can be accessed globally, not just in the current position of the stack.
+ * 2. Value types (or struct) refer to objects that directly contain their data and are
+ *    usually immutable. Assignments of new variables to this variable "copy by value",
+ *    i.e. read and store the value without any further impact on this variable.
+ *    Reference types (or class) refer to objects that do not directly contain their data.
+ *    Instead, variables of a reference type point to the corresponding data in the heap.
+ *    Assignments for these "copy by reference", i.e. create a pointer to the exact same
+ *    data, allowing multiple variables the possibility of changing that data for all others.
+ * 3. In ReturnValue, both x and y are the native int value types, so using y = x copies the
+ *    value of x to the value of y. Setting y = 4 afterwards cannot change x.
+ *    In ReturnValue2, both x and y are now reference types, so using y = x aims the pointer
+ *    for the y data to the same place as x's pointer. Then setting y = 4 changes the data
+ *    in the pointed location; when x retrieves that data, it gets the value 4.
+ */
+
+namespace SkalProj_Datastrukturer_Minne;
 
 class Program
 {
@@ -11,7 +33,7 @@ class Program
         CheckParentheses,
         ReverseText
     }
-    private static int _maxOptionLength =
+    private static readonly int _maxOptionLength =
         Enum.GetValues<MenuOption>().Select(option => $"{option}".Length).Max();
     private static readonly Dictionary<MenuOption, string> _descriptions = new()
     {
