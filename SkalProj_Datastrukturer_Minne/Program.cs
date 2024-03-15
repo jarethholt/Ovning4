@@ -20,7 +20,7 @@
  *    in the pointed location; when x retrieves that data, it gets the value 4.
  */
 
-namespace SkalProj_Datastrukturer_Minne;
+namespace Ovning4;
 
 class Program
 {
