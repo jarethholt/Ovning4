@@ -363,6 +363,35 @@ class Program
         }
     }
 
+    /* Answer to 4.1
+     * Reading the string from left to right, every time a closer )/]/} is encountered,
+     * it must match the *most recent unmatched* opener (/[/{ encountered. If not, you have part
+     * of the string like the example '([)]' where the nominally-outer pair () is finished
+     * before the inner one [] is. Once you do find a match for an inner pair, you can ignore
+     * the opener; the "most recent unmatched" opener is then scrolled back by one.
+     * 
+     * A stack is the best data structure for this. While reading from left to right, keep
+     * a stack of all the openers (/[/{ encountered. When a closer is encountered, it must
+     * match the opener on the top of the stack. If not, the string is incorrectly matched
+     * and you can stop. If it does match, pop that opener off the stack and continue.
+     * If the stack is ever empty when a closer is encountered, it's unmatchable;
+     * if the stack is *not* empty after the whole string is parsed, all those openers
+     * are unmatchable.
+     * 
+     * Take the string '([{}]({}))' as an example. Going through each character
+     * and looking at the resulting stack (without brackets, for clarity):
+     *   Character (  -> Add to stack (
+     *   [ -> (, [
+     *   { -> (, [, {
+     *   } matches {, { gets popped -> (, [
+     *   ] matches [ -> (
+     *   ( -> (, (
+     *   { -> (, (, {
+     *   } matches { -> (, (
+     *   ) matches ( -> (
+     *   ) matches ( -> empty
+     */
+
     private static readonly Dictionary<char, char> _closerToOpener = new()
     {
         { ')', '(' },
