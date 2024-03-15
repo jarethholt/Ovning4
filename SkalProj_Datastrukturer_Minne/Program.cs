@@ -195,6 +195,37 @@ class Program
      *    the _approximate_ size that would make an array more efficient.
      */
 
+    /* Answer to exercise 2.1: Write the state of an Ica Queue
+     * a. ICA opens with an empty register         : {}
+     * b. Kalle gets in line                       : {Kalle}
+     * c. Greta gets in line                       : {Kalle, Greta}
+     * d. Kalle gets checked out (leaves the queue): {Greta}
+     * e. Stine gets in line                       : {Greta, Stine}
+     * f. Greta gets checked out                   : {Stine}
+     * g. Olle gets in line                        : {Stine, Olle}
+     * In this way of writing down the Queue, people are added from the right
+     * and removed from the left.
+     * 
+     * Answer to 2.2: The input to ExamineQueue that would simulate this line is:
+     *   +Kalle
+     *   +Greta
+     *   -
+     *   +Stine
+     *   -
+     *   +Olle
+     * 
+     * Answer to 3.1: Using a stack removes the most recently-added member.
+     * The same input as 2.2 would lead instead to the following sequence of Stacks
+     * (using the right side as the top of the stack):
+     *   (init) -> {}
+     *   +Kalle -> {Kalle}
+     *   +Greta -> {Kalle, Greta}
+     *   -      -> {Kalle}
+     *   +Stine -> {Kalle, Stine}
+     *   -      -> {Kalle}
+     *   +Olle  -> {Kalle, Olle}
+     * Kalle will never get checked out as long as Ica is busy!
+     */
 
     /// <summary>Examine the datastructure Queue.</summary>
     /// <remarks>
