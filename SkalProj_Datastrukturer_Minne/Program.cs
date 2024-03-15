@@ -375,9 +375,7 @@ class Program
                     // Draw an arrow pointing out the unmatchable closer
                     string arrowFormat = $"{{0,{currPosition+1}}}";
                     Console.WriteLine(string.Format(arrowFormat, '1'));
-                    Console.WriteLine(
-                        "This closer (1) is unmatchable."
-                    );
+                    Console.WriteLine("This closer (1) is unmatchable.");
                     correct = false;
                     break;
                 }
@@ -394,6 +392,15 @@ class Program
                     correct = false;
                     break;
                 }
+            }
+            // If any openers are left over, they are unmatchable
+            if (openers.Count != 0)
+            {
+                (_, int openerPosition) = openers.Pop();
+                string arrowFormat = $"{{0,{openerPosition+1}}}";
+                Console.WriteLine(string.Format(arrowFormat, '1'));
+                Console.WriteLine("This opener (1) is unmatchable.");
+                correct = false;
             }
 
             if (correct)
