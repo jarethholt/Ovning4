@@ -534,5 +534,92 @@ class Program
         }
     }
 
+    /* Answer to 5.1
+     * RecursiveOdd(1) -> (n == 1) -> return 1.
+     * 
+     * RecursiveOdd(3) -> (n != 1) -> RecursiveOdd(3-1) + 2
+     *   RecursiveOdd(2) -> (n != 1) -> RecursiveOdd(2-1) + 2
+     *     RecursiveOdd(1) -> (n == 1) -> return 1
+     *   RecursiveOdd(2) -> RecursiveOdd(2-1) + 2 = 1 + 2 = 3
+     * RecursiveOdd(3) -> RecursiveOdd(2) + 2 = 3 + 2 = 5.
+     * 
+     * RecursiveOdd(5) -> RecursiveOdd(5-1) + 2
+     *   RecursiveOdd(4) -> RecursiveOdd(4-1) + 2 = 5 + 2 = 7
+     * RecursiveOdd(5) -> RecursiveOdd(4) + 2 = 7 + 2 = 9
+     * (Skipping past the evaluation of RecursiveOdd(3).)
+     */
+
+    static int RecursiveEven(int n) => n == 1 ? 2 : RecursiveEven(n - 1) + 2;
+
+    static int RecursiveFibonacci(int n)
+    {
+        if (n == 0) return 1;
+        else if (n == 1) return 1;
+        else return RecursiveFibonacci(n - 1) + RecursiveFibonacci(n - 2);
+    }
+
+    /* Answer to 6.1
+     * IterativeOdd(1):
+     *   result = 1
+     *   for (int i = 0; i < 1-1; i++)
+     *     i = 0; i !< 1-1 ==> stop
+     *   return result = 1
+     * 
+     * IterativeOdd(3):
+     *   result = 1
+     *   for (int i = 0; i < 3-1; i++)
+     *     i = 0; i < 3-1 ==> result += 2; result = 3
+     *     i = 1; i < 3-1 ==> result += 2; result = 5
+     *     i = 2; i !< 3-1 ==> stop
+     *   return result = 5
+     * 
+     * IterativeOdd(5):
+     *   result = 1
+     *   for (int i = 0; i < 5-1; i++)
+     *     i = 0; i < 5-1 ==> result += 2; result = 3
+     *     i = 1; i < 5-1 ==> result += 2; result = 5
+     *     i = 2; i < 5-1 ==> result += 2; result = 7
+     *     i = 3; i < 5-1 ==> result += 2; result = 9
+     *     i = 4; i !< 5-1 ==> stop
+     *   return result = 9
+     */
+
+    static int IterativeEven(int n)
+    {
+        int result = 2;
+        for (int i = 0; i < n - 1; i++) result += 2;
+        return result;
+    }
+
+    static int IterativeFibonacci(int n)
+    {
+        int result0 = 1;
+        int result1 = 1;
+        if (n == 0) return result0;
+        else if (n == 1) return result1;
+
+        for (int i = 1; i < n; i++)
+        {
+            int temp = result1;
+            result1 += result0;
+            result0 = temp;
+        }
+        return result1;
+    }
+
+    /* Answer to final question:
+     * In their absolute forms, the iterative versions are more *memory*-friendly.
+     * They require only a couple of integers (on the stack, and can be overwritten)
+     * and no additional method executions to be added to the stack. The recursive
+     * versions add new integers with each method call and add the method execution
+     * itself to the stack.
+     * However, there are a couple additional things that affect this "memory"-friendliness.
+     * First, all of these recursive functions can be tail-call optimized. Since the
+     * recursive call is last, it can take the same slot on the stack without having
+     * to add a new method call. Second, recursive functions are often cached. The
+     * cache takes up space in memory, but can lead to much faster calculation and,
+     * in some cases, direct returns with no calculation (and hence memory or CPU
+     * overhead) involved.
+     */
 }
 
