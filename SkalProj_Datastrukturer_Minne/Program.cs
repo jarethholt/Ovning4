@@ -46,12 +46,15 @@ class Program
     };
     private static readonly Dictionary<MenuOption, Action> _actions = new()
     {
+        { MenuOption.Exit            , Exit             },
         { MenuOption.ExamineList     , ExamineList      },
         { MenuOption.ExamineQueue    , ExamineQueue     },
         { MenuOption.ExamineStack    , ExamineStack     },
         { MenuOption.CheckParentheses, CheckParentheses },
         { MenuOption.ReverseText     , ReverseText      },
     };
+
+    static void Exit() => Environment.Exit(0);
 
     static void DisplayMenu()
     {
@@ -71,48 +74,33 @@ class Program
     {
         while (true)
         {
+            // Display the menu and ask for a choice
             DisplayMenu();
 
-            // Create the character input to be used with the switch-case below.
-            // Read the first character of any input.
-            // If no input is given, ask the user for some.
-            char input = ' ';
-            try
+            string? readResult;
+            MenuOption option;
+            while (true)
             {
-                input = Console.ReadLine()![0];
-            }
-            catch (IndexOutOfRangeException)
-            {
-                Console.Clear();
-                Console.WriteLine("Please enter some input!");
+                readResult = Console.ReadLine();
+                if (string.IsNullOrWhiteSpace(readResult))
+                {
+                    Console.WriteLine("Please enter some input!");
+                    continue;
+                }
+                readResult = readResult.Trim();
+
+                bool success = Enum.TryParse(readResult, out option);
+                if (success)
+                    success &= Enum.IsDefined(option);
+                if (!success)
+                {
+                    Console.WriteLine($"'{readResult}' is not a valid menu option.");
+                    continue;
+                }
+                break;
             }
 
-            switch (input)
-            {
-                case '1':
-                    ExamineList();
-                    break;
-                case '2':
-                    ExamineQueue();
-                    break;
-                case '3':
-                    ExamineStack();
-                    break;
-                case '4':
-                    CheckParentheses();
-                    break;
-                case '5':
-                    ReverseText();
-                    break;
-                case '0':
-                    Environment.Exit(0);
-                    break;
-                default:
-                    Console.WriteLine("Please enter some valid input (0, 1, 2, 3, 4, 5)");
-                    Console.WriteLine("Press enter to try again.");
-                    _ = Console.ReadLine();
-                    break;
-            }
+            _actions[option]();
         }
     }
 
