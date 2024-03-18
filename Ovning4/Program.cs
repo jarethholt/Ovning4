@@ -1,6 +1,4 @@
-﻿using System.Collections;
-
-namespace Ovning4;
+﻿namespace Ovning4;
 
 class Program
 {
@@ -22,16 +20,16 @@ class Program
         { MenuOption.ExamineQueue    , "Examine the Queue type."                },
         { MenuOption.ExamineStack    , "Examine the Stack type."                },
         { MenuOption.CheckParentheses, "Check a string for matching enclosers." },
-        { MenuOption.ReverseText     , "Reverse a piece of text."               }
+        { MenuOption.ReverseText     , "Reverse a piece of text."               },
     };
     private static readonly Dictionary<MenuOption, Action> _actions = new()
     {
-        { MenuOption.Exit            , Exit             },
-        { MenuOption.ExamineList     , ExamineList      },
-        { MenuOption.ExamineQueue    , ExamineQueue     },
-        { MenuOption.ExamineStack    , ExamineStack     },
-        { MenuOption.CheckParentheses, CheckParentheses },
-        { MenuOption.ReverseText     , ReverseText      },
+        { MenuOption.Exit            , Exit                },
+        { MenuOption.ExamineList     , PushPop.ExamineList },
+        { MenuOption.ExamineQueue    , PushPop.ExamineQueue},
+        { MenuOption.ExamineStack    , PushPop.ExamineStack},
+        { MenuOption.CheckParentheses, CheckParentheses    },
+        { MenuOption.ReverseText     , ReverseText         },
     };
 
     static void Exit() => Environment.Exit(0);
@@ -82,208 +80,6 @@ class Program
 
             _actions[option]();
         }
-    }
-
-    // Interface to makes a class look like a stack
-    private interface IStackLike<T> : IReadOnlyCollection<T>
-    {
-        public string BaseName { get; }
-        public void Push(T item);
-        public T? Pop(T item);
-    }
-
-    // Inner loop method to update a StackLike object
-    private static bool UpdateStackLike<T>(
-        T stackLike,
-        Action<T> callback
-    ) where T : IStackLike<string>
-    {
-        bool again = true;
-        string? readResult = Console.ReadLine();
-        if (string.IsNullOrWhiteSpace(readResult))
-        {
-            Console.WriteLine("Empty input, try again.");
-            return again;
-        }
-        char choice = readResult[0];
-        // Using Substring should be safe here even for strings of length 1
-        string value = readResult[1..];
-
-        switch (choice)
-        {
-            case '+':
-                stackLike.Push(value);
-                Console.Write($"Added {value} to the {stackLike.BaseName}. ");
-                break;
-            case '-':
-                if (stackLike.Count == 0)
-                    Console.Write($"Cannot pop an item, the {stackLike.BaseName} is empty. ");
-                else
-                {
-                    string? popped = stackLike.Pop(value);
-                    if (popped is null)
-                        Console.Write($"{value} is not in the {stackLike.BaseName}. ");
-                    else
-                        Console.Write($"Popped {popped} from the {stackLike.BaseName}. ");
-                }
-                break;
-            case '0':
-                Console.WriteLine("Press enter to return to the main menu.");
-                _ = Console.ReadLine();
-                again = false;
-                return again;
-            default:
-                Console.WriteLine($"Could not parse choice {choice}, try again.");
-                return again;
-        }
-
-        callback(stackLike);
-        return again;
-    }
-
-    // Main menu method to examine an IStackLike.
-    private static void ExamineStackLike<T>(
-        T stackLike,
-        Action<T> callback
-    ) where T : IStackLike<string>
-    {
-        Console.Clear();
-        Console.WriteLine(
-            $"Examine a {stackLike.BaseName} of strings.\n"
-            + $"To add 'value' to the {stackLike.BaseName}, type '+value'.\n"
-            + $"To pop an entry from the {stackLike.BaseName}, type '-value'.\n"
-            + "To exit to the main menu, type '0'.\n"
-        );
-        
-        bool again;
-        do
-        {
-            again = UpdateStackLike(stackLike, callback);
-        } while (again);
-    }
-
-    private class ListToStackAdapter<T> : IStackLike<T>
-    {
-        private readonly List<T> _list = [];
-        public string BaseName => "List";
-        public int Count => _list.Count;
-        public int Capacity => _list.Capacity;
-
-        public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
-
-        public T? Pop(T item)
-        {
-            bool success = _list.Remove(item);
-            return success ? item : default;
-        }
-
-        public void Push(T item) => _list.Add(item);
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-    }
-
-    private static readonly Action<ListToStackAdapter<string>> LCallback = new(stackLike =>
-    {
-        Console.WriteLine($"Count: {stackLike.Count}; Capacity: {stackLike.Capacity}");
-    });
-
-    /// <summary>Examines the datastructure List.</summary>
-    /// <remarks>
-    /// Allow the user to manipulate a List of strings. The available actions are,
-    /// like the main menu, controlled by the first character of each line:
-    ///   '+': Add the rest of the input to the list.
-    ///        For example, writing '+Adam' would add "Adam" to the list.
-    ///   '-': (Attempt to) remove an item from the list.
-    ///        For example, writing '-Adam' would remove "Adam" from the list
-    ///        if present and print an error otherwise.
-    ///   '0': Exit to the main menu.
-    /// Entering any other character (or nothing) as the first character will
-    /// print an error message and do nothing.
-    /// After each item is added, the Count and Capacity of the list are printed.
-    /// </remarks>
-    static void ExamineList()
-    {
-        ListToStackAdapter<string> stackLike = new();
-        ExamineStackLike(stackLike, LCallback);
-    }
-
-    // Adapter to make a Queue look like a Stack
-    private class QueueToStackAdapter<T> : IStackLike<T>
-    {
-        private readonly Queue<T> _queue = new();
-        public string BaseName => "Queue";
-        public int Count => _queue.Count;
-
-        public IEnumerator<T> GetEnumerator() => _queue.GetEnumerator();
-
-        public T? Pop() => _queue.Dequeue();
-        public T? Pop(T item) => this.Pop();
-
-        public void Push(T item) => _queue.Enqueue(item);
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-    }
-
-    private static readonly Action<IStackLike<string>> QSCallback = new(stackLike =>
-    {
-        string stackLikeString = string.Join(", ", [.. stackLike]);
-        Console.WriteLine($"Current {stackLike.BaseName}: {stackLikeString}");
-    });
-
-    /// <summary>Examine the datastructure Queue.</summary>
-    /// <remarks>
-    /// Allow the user to manipulate a Queue of strings. The available actions are,
-    /// like the main menu, controlled by the first character of each input line:
-    ///   '+': Add the rest of the input to the queue.
-    ///        For example, writing '+Adam' would add "Adam" to the queue.
-    ///   '-': Pop the item at the front of the queue.
-    ///        Gives an error message if the queue is empty.
-    ///   '0': Exit to the main menu.
-    /// Entering any other character (or nothing) as the first character will
-    /// print an error message and do nothing.
-    /// After each change the state of the queue is printed.
-    /// </remarks>
-    static void ExamineQueue()
-    {
-        QueueToStackAdapter<string> stackLike = new();
-        ExamineStackLike(stackLike, QSCallback);
-    }
-
-    // Adapter to make a Stack look like a Stack
-    private class StackToStackAdapter<T> : IStackLike<T>
-    {
-        private readonly Stack<T> _stack = new();
-        public string BaseName => "Stack";
-
-        public int Count => _stack.Count;
-
-        public IEnumerator<T> GetEnumerator() => _stack.GetEnumerator();
-
-        public T Pop() => _stack.Pop();
-        public T? Pop(T item) => this.Pop();
-
-        public void Push(T item) => _stack.Push(item);
-
-        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
-    }
-
-    /// <summary>Examine the datastructure Stack.</summary>
-    /// <remarks>
-    /// Allow the user to manipulate a Stack of strings. The available actions are,
-    /// like the main menu, controlled by the first character of each input line:
-    ///   '+': Add the rest of the input to the stack.
-    ///        For example, writing '+Adam' would add "Adam" to the stack.
-    ///   '-': Pop the item at the front of the stack.
-    ///        Gives an error message if the stack is empty.
-    ///   '0': Exit to the main menu.
-    /// Entering any other character (or nothing) as the first character will
-    /// print an error message and do nothing.
-    /// After each change the state of the stack is printed.
-    /// </remarks>
-    static void ExamineStack()
-    {
-        StackToStackAdapter<string> stackLike = new();
-        ExamineStackLike(stackLike, QSCallback);
     }
 
     private static readonly Dictionary<char, char> _closerToOpener = new()
