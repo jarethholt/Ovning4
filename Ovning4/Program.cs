@@ -106,95 +106,19 @@ class Program
         }
     }
 
-    /// <summary>Examines the datastructure List.</summary>
-    /// <remarks>
-    /// Allow the user to manipulate a List of strings. The available actions are,
-    /// like the main menu, controlled by the first character of each line:
-    ///   '+': Add the rest of the input to the list.
-    ///        For example, writing '+Adam' would add "Adam" to the list.
-    ///   '-': (Attempt to) remove an item from the list.
-    ///        For example, writing '-Adam' would remove "Adam" from the list
-    ///        if present and print an error otherwise.
-    ///   '0': Exit to the main menu.
-    /// Entering any other character (or nothing) as the first character will
-    /// print an error message and do nothing.
-    /// After each item is added, the Count and Capacity of the list are printed.
-    /// </remarks>
-    static void ExamineList()
-    {
-        Console.Clear();
-        Console.WriteLine(
-            "Examine a List of strings.\n"
-            + "To add 'value' to the list, type '+value'.\n"
-            + "To remove 'value' from the list, type '-value'.\n"
-            + "To exit to the main menu, type '0'.\n"
-        );
-
-        List<string> list = [];
-        string? readResult;
-
-        while (true)
-        {
-            readResult = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(readResult))
-            {
-                Console.WriteLine("Empty input, try again.");
-                continue;
-            }
-            char choice = readResult[0];
-            string value = readResult[1..];
-
-            switch (choice)
-            {
-                case '+':
-                    list.Add(value);
-                    Console.Write($"Added {value}. ");
-                    break;
-                case '-':
-                    bool success = list.Remove(value);
-                    if (success)
-                        Console.Write($"Removed {value}. ");
-                    else
-                        Console.Write($"{value} is not in the list. ");
-                    break;
-                case '0':
-                    Console.WriteLine("Press enter to return to the main menu.");
-                    _ = Console.ReadLine();
-                    return;
-                default:
-                    Console.WriteLine($"Could not parse choice {choice}, try again");
-                    continue;
-            }
-
-            Console.WriteLine($"Count: {list.Count}; Capacity: {list.Capacity}");
-        }
-    }
-    /* Answers to questions relevant to this code:
-     * 2. The list's capacity grows when the current capacity is *exceeded*. For example,
-     *    if the capacity is 4, it is increased when trying to add the 5th element.
-     * 3. The capacity is doubled each time: 1 -> 2 -> 4 -> 8 -> ...
-     * 4. Growing the list requires allocating more space for data. It's expected that
-     *    the list will grow, so it's more efficient to allocate plenty of space at once.
-     *    The specific capacity increases suggest the list is backed by a binary heap.
-     * 5. The capacity is never decreased despite the count falling below any amount of
-     *    thresholds. As far as I can tell, List.TrimExcess is the only way to reduce
-     *    the capacity of a list.
-     * 6. An array is definitely better than a list anytime you know exactly what size
-     *    you need beforehand. Otherwise I would say lists are a better choice. Since
-     *    C# has List.EnsureCapacity, I don't think there's any amount of knowledge of
-     *    the _approximate_ size that would make an array more efficient.
-     */
-
     // Interface to makes a class look like a stack
     private interface IStackLike<T> : IReadOnlyCollection<T>
     {
         public string BaseName { get; }
         public void Push(T item);
-        public T Pop();
+        public T? Pop(T item);
     }
 
     // Inner loop method to update a StackLike object
-    private static bool UpdateStackLike(IStackLike<string> stackLike)
+    private static bool UpdateStackLike<T>(
+        T stackLike,
+        Action<T> callback
+    ) where T : IStackLike<string>
     {
         bool again = true;
         string? readResult = Console.ReadLine();
@@ -218,8 +142,11 @@ class Program
                     Console.Write($"Cannot pop an item, the {stackLike.BaseName} is empty. ");
                 else
                 {
-                    string popped = stackLike.Pop();
-                    Console.Write($"Popped {popped} from the {stackLike.BaseName}. ");
+                    string? popped = stackLike.Pop(value);
+                    if (popped is null)
+                        Console.Write($"{value} is not in the {stackLike.BaseName}. ");
+                    else
+                        Console.Write($"Popped {popped} from the {stackLike.BaseName}. ");
                 }
                 break;
             case '0':
@@ -232,28 +159,90 @@ class Program
                 return again;
         }
 
-        string stackLikeString = string.Join(", ", [.. stackLike]);
-        Console.WriteLine($"Current {stackLike.BaseName}: {stackLikeString}");
+        callback(stackLike);
         return again;
     }
 
     // Main menu method to examine an IStackLike.
-    private static void ExamineStackLike(IStackLike<string> stackLike)
+    private static void ExamineStackLike<T>(
+        T stackLike,
+        Action<T> callback
+    ) where T : IStackLike<string>
     {
         Console.Clear();
         Console.WriteLine(
             $"Examine a {stackLike.BaseName} of strings.\n"
             + $"To add 'value' to the {stackLike.BaseName}, type '+value'.\n"
-            + $"To pop an entry from the {stackLike.BaseName}, type '-'.\n"
+            + $"To pop an entry from the {stackLike.BaseName}, type '-value'.\n"
             + "To exit to the main menu, type '0'.\n"
         );
-
+        
         bool again;
         do
         {
-            again = UpdateStackLike(stackLike);
+            again = UpdateStackLike(stackLike, callback);
         } while (again);
     }
+
+    private class ListToStackAdapter<T> : IStackLike<T>
+    {
+        private readonly List<T> _list = [];
+        public string BaseName => "List";
+        public int Count => _list.Count;
+        public int Capacity => _list.Capacity;
+
+        public IEnumerator<T> GetEnumerator() => _list.GetEnumerator();
+
+        public T? Pop(T item)
+        {
+            bool success = _list.Remove(item);
+            return success ? item : default;
+        }
+
+        public void Push(T item) => _list.Add(item);
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+
+    private static readonly Action<ListToStackAdapter<string>> LCallback = new(stackLike =>
+    {
+        Console.WriteLine($"Count: {stackLike.Count}; Capacity: {stackLike.Capacity}");
+    });
+
+    /// <summary>Examines the datastructure List.</summary>
+    /// <remarks>
+    /// Allow the user to manipulate a List of strings. The available actions are,
+    /// like the main menu, controlled by the first character of each line:
+    ///   '+': Add the rest of the input to the list.
+    ///        For example, writing '+Adam' would add "Adam" to the list.
+    ///   '-': (Attempt to) remove an item from the list.
+    ///        For example, writing '-Adam' would remove "Adam" from the list
+    ///        if present and print an error otherwise.
+    ///   '0': Exit to the main menu.
+    /// Entering any other character (or nothing) as the first character will
+    /// print an error message and do nothing.
+    /// After each item is added, the Count and Capacity of the list are printed.
+    /// </remarks>
+    static void ExamineList()
+    {
+        ListToStackAdapter<string> stackLike = new();
+        ExamineStackLike(stackLike, LCallback);
+    }
+    /* Answers to questions relevant to this code:
+     * 2. The list's capacity grows when the current capacity is *exceeded*. For example,
+     *    if the capacity is 4, it is increased when trying to add the 5th element.
+     * 3. The capacity is doubled each time: 1 -> 2 -> 4 -> 8 -> ...
+     * 4. Growing the list requires allocating more space for data. It's expected that
+     *    the list will grow, so it's more efficient to allocate plenty of space at once.
+     *    The specific capacity increases suggest the list is backed by a binary heap.
+     * 5. The capacity is never decreased despite the count falling below any amount of
+     *    thresholds. As far as I can tell, List.TrimExcess is the only way to reduce
+     *    the capacity of a list.
+     * 6. An array is definitely better than a list anytime you know exactly what size
+     *    you need beforehand. Otherwise I would say lists are a better choice. Since
+     *    C# has List.EnsureCapacity, I don't think there's any amount of knowledge of
+     *    the _approximate_ size that would make an array more efficient.
+     */
 
     // Adapter to make a Queue look like a Stack
     private class QueueToStackAdapter<T> : IStackLike<T>
@@ -264,12 +253,19 @@ class Program
 
         public IEnumerator<T> GetEnumerator() => _queue.GetEnumerator();
 
-        public T Pop() => _queue.Dequeue();
+        public T? Pop() => _queue.Dequeue();
+        public T? Pop(T item) => this.Pop();
 
         public void Push(T item) => _queue.Enqueue(item);
 
         IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
+
+    private static readonly Action<IStackLike<string>> QSCallback = new(stackLike =>
+    {
+        string stackLikeString = string.Join(", ", [.. stackLike]);
+        Console.WriteLine($"Current {stackLike.BaseName}: {stackLikeString}");
+    });
 
     /* Answer to exercise 2.1: Write the state of an Ica Queue
      * a. ICA opens with an empty register         : {}
@@ -319,7 +315,7 @@ class Program
     static void ExamineQueue()
     {
         QueueToStackAdapter<string> stackLike = new();
-        ExamineStackLike(stackLike);
+        ExamineStackLike(stackLike, QSCallback);
     }
 
     // Adapter to make a Stack look like a Stack
@@ -333,6 +329,7 @@ class Program
         public IEnumerator<T> GetEnumerator() => _stack.GetEnumerator();
 
         public T Pop() => _stack.Pop();
+        public T? Pop(T item) => this.Pop();
 
         public void Push(T item) => _stack.Push(item);
 
@@ -355,7 +352,7 @@ class Program
     static void ExamineStack()
     {
         StackToStackAdapter<string> stackLike = new();
-        ExamineStackLike(stackLike);
+        ExamineStackLike(stackLike, QSCallback);
     }
 
     /* Answer to 4.1
