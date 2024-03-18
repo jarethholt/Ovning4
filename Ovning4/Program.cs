@@ -20,6 +20,8 @@
  *    in the pointed location; when x retrieves that data, it gets the value 4.
  */
 
+using System.Collections;
+
 namespace Ovning4;
 
 class Program
@@ -183,6 +185,92 @@ class Program
      *    the _approximate_ size that would make an array more efficient.
      */
 
+    // Interface to makes a class look like a stack
+    private interface IStackLike<T> : IReadOnlyCollection<T>
+    {
+        public string BaseName { get; }
+        public void Push(T item);
+        public T Pop();
+    }
+
+    // Inner loop method to update a StackLike object
+    private static bool UpdateStackLike(IStackLike<string> stackLike)
+    {
+        bool again = true;
+        string? readResult = Console.ReadLine();
+        if (string.IsNullOrWhiteSpace(readResult))
+        {
+            Console.WriteLine("Empty input, try again.");
+            return again;
+        }
+        char choice = readResult[0];
+        // Using Substring should be safe here even for strings of length 1
+        string value = readResult[1..];
+
+        switch (choice)
+        {
+            case '+':
+                stackLike.Push(value);
+                Console.Write($"Added {value} to the {stackLike.BaseName}. ");
+                break;
+            case '-':
+                if (stackLike.Count == 0)
+                    Console.Write($"Cannot pop an item, the {stackLike.BaseName} is empty. ");
+                else
+                {
+                    string popped = stackLike.Pop();
+                    Console.Write($"Popped {popped} from the {stackLike.BaseName}. ");
+                }
+                break;
+            case '0':
+                Console.WriteLine("Press enter to return to the main menu.");
+                _ = Console.ReadLine();
+                again = false;
+                return again;
+            default:
+                Console.WriteLine($"Could not parse choice {choice}, try again.");
+                return again;
+        }
+
+        string stackLikeString = string.Join(", ", [.. stackLike]);
+        Console.WriteLine($"Current {stackLike.BaseName}: {stackLikeString}");
+        return again;
+    }
+
+    // Main menu method to examine an IStackLike.
+    private static void ExamineStackLike(IStackLike<string> stackLike)
+    {
+        Console.Clear();
+        Console.WriteLine(
+            $"Examine a {stackLike.BaseName} of strings.\n"
+            + $"To add 'value' to the {stackLike.BaseName}, type '+value'.\n"
+            + $"To pop an entry from the {stackLike.BaseName}, type '-'.\n"
+            + "To exit to the main menu, type '0'.\n"
+        );
+
+        bool again;
+        do
+        {
+            again = UpdateStackLike(stackLike);
+        } while (again);
+    }
+
+    // Adapter to make a Queue look like a Stack
+    private class QueueToStackAdapter<T> : IStackLike<T>
+    {
+        private readonly Queue<T> _queue = new();
+        public string BaseName => "Queue";
+        public int Count => _queue.Count;
+
+        public IEnumerator<T> GetEnumerator() => _queue.GetEnumerator();
+
+        public T Pop() => _queue.Dequeue();
+
+        public void Push(T item) => _queue.Enqueue(item);
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
+    }
+
     /* Answer to exercise 2.1: Write the state of an Ica Queue
      * a. ICA opens with an empty register         : {}
      * b. Kalle gets in line                       : {Kalle}
@@ -230,57 +318,25 @@ class Program
     /// </remarks>
     static void ExamineQueue()
     {
-        Console.Clear();
-        Console.WriteLine(
-            "Examine a Queue of strings.\n"
-            + "To add 'value' to the queue, type '+value'.\n"
-            + "To pop an entry from the queue, type '-'.\n"
-            + "To exit to the main menu, type '0'.\n"
-        );
+        QueueToStackAdapter<string> stackLike = new();
+        ExamineStackLike(stackLike);
+    }
 
-        Queue<string> queue = new();
-        string? readResult;
+    // Adapter to make a Stack look like a Stack
+    private class StackToStackAdapter<T> : IStackLike<T>
+    {
+        private readonly Stack<T> _stack = new();
+        public string BaseName => "Stack";
 
-        while (true)
-        {
+        public int Count => _stack.Count;
 
-            readResult = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(readResult))
-            {
-                Console.WriteLine("Empty input, try again.");
-                continue;
-            }
-            char choice = readResult[0];
-            // Using Substring should be safe here even for strings of length 1
-            string value = readResult[1..];
+        public IEnumerator<T> GetEnumerator() => _stack.GetEnumerator();
 
-            switch (choice)
-            {
-                case '+':
-                    queue.Enqueue(value);
-                    Console.Write($"Added {value} to the Queue. ");
-                    break;
-                case '-':
-                    if (queue.Count == 0)
-                        Console.Write("Cannot pop an item, the Queue is empty. ");
-                    else
-                    {
-                        string popped = queue.Dequeue();
-                        Console.Write($"Popped {popped} from the Queue. ");
-                    }
-                    break;
-                case '0':
-                    Console.WriteLine("Press enter to return to the main menu.");
-                    _ = Console.ReadLine();
-                    return;
-                default:
-                    Console.WriteLine($"Could not parse choice {choice}, try again");
-                    continue;
-            }
+        public T Pop() => _stack.Pop();
 
-            string queueString = string.Join(", ", [.. queue]);
-            Console.WriteLine($"Current Queue: {queueString}");
-        }
+        public void Push(T item) => _stack.Push(item);
+
+        IEnumerator IEnumerable.GetEnumerator() => this.GetEnumerator();
     }
 
     /// <summary>Examine the datastructure Stack.</summary>
@@ -298,57 +354,8 @@ class Program
     /// </remarks>
     static void ExamineStack()
     {
-        Console.Clear();
-        Console.WriteLine(
-            "Examine a Stack of strings.\n"
-            + "To add 'value' to the stack, type '+value'.\n"
-            + "To pop an entry from the stack, type '-'.\n"
-            + "To exit to the main menu, type '0'.\n"
-        );
-
-        Stack<string> stack = new();
-        string? readResult;
-
-        while (true)
-        {
-
-            readResult = Console.ReadLine();
-            if (string.IsNullOrWhiteSpace(readResult))
-            {
-                Console.WriteLine("Empty input, try again.");
-                continue;
-            }
-            char choice = readResult[0];
-            // Using Substring should be safe here even for strings of length 1
-            string value = readResult[1..];
-
-            switch (choice)
-            {
-                case '+':
-                    stack.Push(value);
-                    Console.Write($"Added {value} to the Stack. ");
-                    break;
-                case '-':
-                    if (stack.Count == 0)
-                        Console.Write("Cannot pop an item, the Stack is empty. ");
-                    else
-                    {
-                        string popped = stack.Pop();
-                        Console.Write($"Popped {popped} from the Stack. ");
-                    }
-                    break;
-                case '0':
-                    Console.WriteLine("Press enter to return to the main menu.");
-                    _ = Console.ReadLine();
-                    return;
-                default:
-                    Console.WriteLine($"Could not parse choice {choice}, try again");
-                    continue;
-            }
-
-            string stackString = string.Join(", ", [.. stack]);
-            Console.WriteLine($"Current Stack: {stackString}");
-        }
+        StackToStackAdapter<string> stackLike = new();
+        ExamineStackLike(stackLike);
     }
 
     /* Answer to 4.1
